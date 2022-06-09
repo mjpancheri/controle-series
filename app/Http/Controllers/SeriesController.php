@@ -8,13 +8,12 @@ use Illuminate\Support\Facades\DB;
 
 class SeriesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-//        $series = DB::select('SELECT nome FROM series');
-//        $series = Serie::all();
         $series = Serie::query()->orderBy('nome')->get();
+        $mensagemSucesso = $request->session()->get('mensagem.sucesso');
 
-        return view('series.index')->with('series', $series);
+        return view('series.index')->with('series', $series)->with('mensagemSucesso', $mensagemSucesso);
     }
 
     public function create()
@@ -24,18 +23,31 @@ class SeriesController extends Controller
 
     public function store(Request $request)
     {
-//        $nome = $request->input('nome');
+        $series = Serie::create($request->all());
 
-//        if (DB::insert('INSERT INTO series (nome) VALUES(?)', [$nome])) {
-//            return redirect('/series');
-//        } else {
-//            return "ERRO";
-//        }
-//        $serie = new Serie();
-//        $serie->nome = $request->input('nome');
-//        $serie->save();
-        Serie::create($request->all());
+        return to_route('series.index')
+            ->with('mensagem.sucesso', "Série {$series->nome} adicionada com sucesso!");
+    }
 
-        return redirect('/series');
+    public function destroy(Serie $series)
+    {
+        $series->delete();
+
+        return to_route('series.index')
+            ->with('mensagem.sucesso', "Série {$series->nome} removida com sucesso!");
+    }
+
+    public function edit(Serie $series)
+    {
+        return view('series.edit')->with('serie', $series);
+    }
+
+    public function update(Serie $series, Request $request)
+    {
+        $series->fill($request->all());
+        $series->save();
+
+        return to_route('series.index')
+            ->with('mensagem.sucesso', "Série {$series->nome} atualizada com sucesso!");
     }
 }
