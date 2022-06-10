@@ -38,4 +38,43 @@ class EloquentSeriesRepository implements SeriesRepository
             return $series;
         });
     }
+
+    public function update(Series $series, SeriesFormRequest $request): Series
+    {
+        return DB::transaction(function () use ($series, $request) {
+            $series->fill($request->all());
+            $series->save();
+
+            if ($series->seasons->count() > 0) {
+                $oldSeasons = [];
+                foreach ($series->seasons as $season) {
+                    $oldSeasons[] = [
+                        'id' => $season->id
+                    ];
+                }
+                Season::destroy($oldSeasons);
+            }
+            $seasons = [];
+            for ($i = 1; $i <= $request->seasonsQty; $i++) {
+                $seasons[] = [
+                    'series_id' => $series->id,
+                    'number' => $i
+                ];
+            }
+            Season::insert($seasons);
+
+            $episodes = [];
+            foreach ($series->seasons()->getEager() as $season) {
+                for ($j = 1; $j <= $request->episodesPerSeason; $j++) {
+                    $episodes[] = [
+                        'season_id' => $season->id,
+                        'number' => $j
+                    ];
+                }
+            }
+            Episode::insert($episodes);
+
+            return $series;
+        });
+    }
 }

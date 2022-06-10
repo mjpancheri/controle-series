@@ -14,7 +14,6 @@ class SeriesController extends Controller
 {
     public function __construct(private SeriesRepository $repository)
     {
-
     }
 
     public function index(Request $request)
@@ -53,39 +52,7 @@ class SeriesController extends Controller
 
     public function update(Series $series, SeriesFormRequest $request)
     {
-        DB::transaction(function () use ($series, $request) {
-            $series->fill($request->all());
-            $series->save();
-
-            if ($series->seasons->count() > 0) {
-                $oldSeasons = [];
-                foreach ($series->seasons as $season) {
-                    $oldSeasons[] = [
-                        'id' => $season->id
-                    ];
-                }
-                Season::destroy($oldSeasons);
-            }
-            $seasons = [];
-            for ($i = 1; $i <= $request->seasonsQty; $i++) {
-                $seasons[] = [
-                    'series_id' => $series->id,
-                    'number' => $i
-                ];
-            }
-            Season::insert($seasons);
-
-            $episodes = [];
-            foreach ($series->seasons()->getEager() as $season) {
-                for ($j = 1; $j <= $request->episodesPerSeason; $j++) {
-                    $episodes[] = [
-                        'season_id' => $season->id,
-                        'number' => $j
-                    ];
-                }
-            }
-            Episode::insert($episodes);
-        });
+        $series = $this->repository->update($series, $request);
 
         return to_route('series.index')
             ->with('message.success', "Successful updated series {$series->name}!");
