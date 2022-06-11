@@ -29,6 +29,6 @@ class LoginController
 
         $request->session()->regenerateToken();
 
-        return to_route('login');
+        return to_route('series.index');
     }
 }

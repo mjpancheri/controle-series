@@ -13,6 +13,11 @@
             @auth()
                 <a href="{{ route('logout') }}" class="btn btn-secondary btn-sm">Logout</a>
             @endauth
+            @guest()
+                @if($title != 'Login')
+                    <a href="{{ route('login') }}" class="btn btn-secondary btn-sm">Login</a>
+                @endif
+            @endguest
         </div>
     </nav>
 
