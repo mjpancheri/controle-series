@@ -6,8 +6,15 @@
     <title>{{ $title }}</title>
 </head>
 <body>
-<div class="container">
-    <h1>{{ $title }}</h1>
+<div class="container bg-light p-4">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <h1>{{ $title }}</h1>
+            @auth()
+                <a href="{{ route('logout') }}" class="btn btn-secondary btn-sm">Logout</a>
+            @endauth
+        </div>
+    </nav>
 
     @isset($successMessage)
         <div class="alert alert-success">
