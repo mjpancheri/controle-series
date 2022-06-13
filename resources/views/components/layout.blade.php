@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
     <title>{{ $title }}</title>
 </head>
 <body>
@@ -11,7 +12,10 @@
         <div class="container-fluid">
             <h1>{{ $title }}</h1>
             @auth()
-                <a href="{{ route('logout') }}" class="btn btn-secondary btn-sm">Logout</a>
+                <form action="{{ route('logout') }}" method="post">
+                    @csrf
+                    <button type="submit" class="btn btn-secondary btn-sm">Logout</button>
+                </form>
             @endauth
             @guest()
                 @if($title != 'Login')
