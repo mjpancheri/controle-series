@@ -31,6 +31,12 @@
         </div>
     @endisset
 
+    @isset($errorMessage)
+        <div class="alert alert-danger">
+            {{ $errorMessage }}
+        </div>
+    @endisset
+
     @if ($errors->any())
         <div class="alert alert-danger">
             <ul>

@@ -8,6 +8,7 @@ use App\Mail\SeriesCreated;
 use App\Models\Series;
 use App\Models\User;
 use App\Repositories\SeriesRepository;
+use Dflydev\DotAccessData\Data;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -15,7 +16,7 @@ class SeriesController extends Controller
 {
     public function __construct(private SeriesRepository $repository)
     {
-        $this->middleware(Authenticator::class)->except('index');
+        // $this->middleware(Authenticator::class)->except('index');
     }
 
     public function index(Request $request)
@@ -26,25 +27,25 @@ class SeriesController extends Controller
         return view('series.index')->with('series', $series)->with('successMessage', $successMessage);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('series.create');
+        $errorMessage = $request->session()->get('message.error');
+        return view('series.create')->with('errorMessage', $errorMessage);
     }
 
     public function store(SeriesFormRequest $request)
     {
         $series = $this->repository->add($request);
-
-        foreach (User::all() as $index => $user) {
-            $email = new SeriesCreated(
-                $series->name,
-                $series->id,
-                $request->seasonsQty,
-                $request->episodesPerSeason,
-            );
-            $when = now()->addSecond($index * 5);
-            Mail::to($user)->later($when, $email);
+        if ($series->id == null) {
+            return back()
+                ->with('message.error', "Error! Series duplicated: {$request->name}");
         }
+        \App\Events\SeriesCreated::dispatch(
+            $series->name,
+            $series->id,
+            $request->seasonsQty,
+            $request->episodesPerSeason,
+        );
 
         return to_route('series.index')
             ->with('message.success', "Successful added series {$series->name}!");
