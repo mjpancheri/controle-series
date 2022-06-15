@@ -35,6 +35,14 @@ class SeriesController extends Controller
 
     public function store(SeriesFormRequest $request)
     {
+        $mimeTypePermited = "image/gif;image/jpeg;image/png";
+        if (!str_contains($mimeTypePermited, $request->file('cover')->getMimeType())) {
+            return back()
+                ->with('message.error', "Error! File type forbidden...");
+        }
+        $request->coverPath = $request->file('cover')
+            ->store('series_path', 'public');
+
         $series = $this->repository->add($request);
         if ($series->id == null) {
             return back()

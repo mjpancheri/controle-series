@@ -1,4 +1,4 @@
-<form action="{{ $action }}" method="post">
+<form action="{{ $action }}" method="post" enctype="multipart/form-data">
     @csrf
 
     @isset($update)
@@ -29,6 +29,13 @@
                    id="episodesPerSeason"
                    class="form-control"
                    @isset($episodesPerSeason)value="{{ $episodesPerSeason }}"@endisset>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-12">
+            <label for="cover" class="form-label">Cover</label>
+            <input type="file" name="cover" id="cover" class="form-control"
+                   accept="image/gif, image/jpeg, image/png">
         </div>
     </div>
     <a href="{{ route('series.index') }}" class="btn btn-secondary float-start">Back</a>
